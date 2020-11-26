@@ -1,21 +1,15 @@
 // API info
-const autocompleteURL = 'locations/v1/cities/autocomplete';
-const searchURL = 'locations/v1/cities/search';
-const forecastURL = 'forescasts/v1/daily/1day/'
 const apiKey = '3b6c414b301c5501f7cfe3b433d89d7f';
 
 
 // Setting default URL for the api
 //api.openweathermap.org/data/2.5/weather?q=London&appid={API key}
-//axios.defaults.baseURL = 'http://dataservice.accuweather.com/';
 axios.defaults.baseURL = 'https://api.openweathermap.org/data/2.5/weather'
-
-
 
 // DOM elements
 let inputText = document.querySelector('#form input');
 let btnQuery = document.querySelector('#form button');
-
+let displayDiv = document.querySelector('#display');
 
 // Global variables
 let citiesArray = [];
@@ -32,7 +26,7 @@ function getCity(queryText) {
 }
 
 function getForecast(queryText) {
-  axios.get('', {params: {q: queryText, appid: apiKey}})
+  axios.get('', {params: {q: queryText, appid: apiKey, units: 'metric', lang: 'pt_br'}})
     .then(function (response) {
       forecast = response.data;
     }).catch(function (error) {
@@ -50,9 +44,21 @@ function autocomplete() {
 }
 
 function displayForecast() {
+  let titleElement = document.createElement('h2');
+  let descriptionElement = document.createElement('h3');
+  let temperatureElement = document.createElement('h3');
+
   getForecast(inputText.value);
 
   console.log(forecast.weather[0].main);
+
+  titleElement.appendChild(document.createTextNode('Weather in ' + forecast.name));
+  descriptionElement.appendChild(document.createTextNode(forecast.weather[0].main));
+  temperatureElement.appendChild(document.createTextNode(forecast.main.temp + '°C'));
+
+  displayDiv.appendChild(titleElement);
+  displayDiv.appendChild(descriptionElement);
+  displayDiv.appendChild(temperatureElement);
 }
 
 btnQuery.onclick = displayForecast;
