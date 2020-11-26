@@ -18,12 +18,20 @@ let divWeather = document.querySelector('#displayWeather');
 
 // Global variables
 let forecast;
+let countries = ['BR', 'US', 'GB', 'ES', 'PT'];
+let cities = [];
 
 
+
+// API Requests
+// Requisição assíncrona para o servidor local
 function getCities() {
   axiosLocal.get('city.list.json')
     .then((response) => {
-      autocomplete(response.data);
+      // Filtra o JSON com base no array de países desejados
+      cities = response.data.filter((cities) => {
+        return countries.includes(cities.country);
+      });
     }).catch((error) => {
       console.log(error);
     });
@@ -40,6 +48,12 @@ function getForecast() {
       console.log(error);
     });
 }
+
+
+
+
+
+// Functions that display info on DOM elements
 
 function displayForecast(forecast) {
   divWeather.innerHTML = '';
@@ -74,32 +88,32 @@ function displayForecast(forecast) {
   divWeather.appendChild(timeElement);
 }
 
-function capitalize(string) {
-  return string.charAt(0).toUpperCase() + string.slice(1);
-}
-
 function autocomplete(cities) {
   divSugestion.innerHTML = '';
 
+  // Filta o array de cidades com base no nome
   let sugestions = cities.filter((cities) => {
     return cities.name.toLowerCase().startsWith(inputText.value.toLowerCase().trim());
   });
 
-  for (const city of sugestions) {
-    displaySugestion(city);
+  // Exibe as 5 primeias sugestões que dão match com a busca
+  for (let i = 0; i < 5; i++) {
+    displaySugestion(sugestions[i]);
   }
 }
 
 function displaySugestion(city) {
-  let cityElement = document.createElement('a');
-  cityElement.setAttribute('class', 'dropdown-item');
-  cityElement.setAttribute('href', '#');
-  cityElement.setAttribute('data-id', city.id);
-  cityElement.setAttribute('onclick', 'fillInput(this)')
+  if (city) {
+    let cityElement = document.createElement('a');
+    cityElement.setAttribute('class', 'dropdown-item');
+    cityElement.setAttribute('href', '#');
+    cityElement.setAttribute('data-id', city.id);
+    cityElement.setAttribute('onclick', 'fillInput(this)')
 
-  cityElement.appendChild(document.createTextNode(city.name + ' - ' + city.country));
+    cityElement.appendChild(document.createTextNode(city.name + ' - ' + city.country));
 
-  divSugestion.appendChild(cityElement);
+    divSugestion.appendChild(cityElement);
+  }
 }
 
 function fillInput(element) {
@@ -108,8 +122,26 @@ function fillInput(element) {
   divSugestion.innerHTML = '';
 
   btnQuery.click();
-
 }
+
+
+
+
+
+
+
+// Função utilitária que retorna a string com a primeira letra maiúscula
+function capitalize(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+
+// Load JSON file at start
+getCities();
+
+
+// Event listeners
+btnQuery.addEventListener('click', getForecast);
 
 
 inputText.addEventListener('keyup', (event) => {
@@ -118,8 +150,7 @@ inputText.addEventListener('keyup', (event) => {
   } else if (inputText.value === '') {
     divSugestion.innerHTML = '';
   } else {
-    getCities();
+    autocomplete(cities);
   }
 });
 
-btnQuery.addEventListener('click', getForecast);
