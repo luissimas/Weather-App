@@ -1,5 +1,5 @@
 // API info
-const apiKey = '3b6c414b301c5501f7cfe3b433d89d7f';
+const apiKey = '';
 
 // Setting up axios instances
 //api.openweathermap.org/data/2.5/weather?q=London&appid={API key}
